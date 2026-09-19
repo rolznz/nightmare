@@ -104,6 +104,7 @@ function onEvt(e){
     case 'tool_end':toolCard(e);break;
     case 'error':addMsg('error','error').textContent=e.text;scrollBottom();break;
     case 'info':addMsg('note','').textContent=e.text;scrollBottom();break;
+    case 'new_session':wrapEl.innerHTML='';cur=null;addMsg('note','').textContent='new session '+e.id;scrollBottom();break;
     case 'queued':$('queued').textContent=e.count?'queue: '+e.count:'';break;
     case 'state':
       $('dot').classList.toggle('busy',!!e.busy);
@@ -142,6 +143,7 @@ async function health(){
 }
 function send(){
   const t=inEl.value.trim();if(!t)return;
+  addMsg('user','you').textContent=t;scrollBottom();
   api('/chat',{method:'POST',body:JSON.stringify({text:t})});
   inEl.value='';inEl.style.height='auto';
 }

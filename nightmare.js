@@ -210,7 +210,7 @@ async function compactSession(cfg, s, emit) {
 
 /* ---------------------------- the loop ---------------------------- */
 async function runLoop(cfg, session, userText, emit) {
-  log('turn_start', { id: session.id, text: userText.slice(0, 200) });
+  log('turn_start', { id: session.id, text: userText });
   session.messages.push({ role: 'user', content: userText });
   saveSession(session);
   let final = '', lastAssistant = '', emptyStreak = 0;
@@ -578,9 +578,11 @@ function startBridge(cfg, { host, port }) {
         return json(res, { ok: true, queued: live.queue.length });
       }
       if (req.method === 'POST' && p === '/new') {
-        live.session = null;
-        broadcast({ type: 'info', text: 'new session' });
-        return json(res, { ok: true });
+        const s2 = newSession();
+        saveSession(s2);
+        live.session = s2;
+        broadcast({ type: 'new_session', id: s2.id });
+        return json(res, { ok: true, id: s2.id });
       }
       if (req.method === 'POST' && p === '/compact') {
         if (!live.session) return json(res, { error: 'no active session' }, 409);
