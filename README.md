@@ -68,3 +68,7 @@ test/mock/server.js   offline mock OpenAI-compatible server
 ## The bootstrap idea
 
 From M0 onward, **all development of nightmare happens inside nightmare.** Point it at this repo, open `chat`, and give it a milestone from `docs/MILESTONES.md`. Read the architecture before asking for changes: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+The first commit was made with PI agent (Qwen3.8 27b).
+
+Following commits have been made with nightmare (Qwen3.8 27b).
