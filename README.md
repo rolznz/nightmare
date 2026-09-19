@@ -60,6 +60,7 @@ docs/
   ARCHITECTURE.md     design tenets, topology & loop diagrams, protocol, context budget
   MILESTONES.md       M0–M6 plan (M0–M1 shipped)
   QUESTIONS.md        open questions + suggestions — your feedback goes here
+  GITHUB.md           how nightmare will build itself through a public github repository
 test/mock/server.js   offline mock OpenAI-compatible server
 .nightmare/           runtime state (gitignored)
 ```
