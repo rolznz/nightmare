@@ -98,7 +98,7 @@ async function apiFetch(cfg, p, { body, timeoutMs } = {}) {
     method: body ? 'POST' : 'GET',
     headers: { 'content-type': 'application/json', ...(cfg.apiKey ? { authorization: 'Bearer ' + cfg.apiKey } : {}) },
     body: body ? JSON.stringify(body) : undefined,
-    signal: AbortSignal.timeout(timeoutMs || cfg.timeoutMs || 300000),
+    ...(timeoutMs ? { signal: AbortSignal.timeout(timeoutMs) } : {}),
   });
   if (!res.ok) throw new Error('HTTP ' + res.status + ' from ' + cfg.baseUrl + p + ': ' + (await res.text().catch(() => '')).slice(0, 300));
   return res;
@@ -109,7 +109,7 @@ async function listModels(cfg) {
   return (j.data || []).map(m => m.id || m.name).sort();
 }
 /* Streaming chat completion with JSON-response fallback. */
-async function chat(cfg, messages, { onDelta, timeoutMs } = {}) {
+async function chat(cfg, messages, { onDelta } = {}) {
   const res = await apiFetch(cfg, '/chat/completions', {
     body: {
       model: cfg.model,
@@ -118,7 +118,6 @@ async function chat(cfg, messages, { onDelta, timeoutMs } = {}) {
       stream: true,
       ...(cfg.maxTokens ? { max_tokens: cfg.maxTokens } : {}),
     },
-    timeoutMs,
   });
   const ct = (res.headers.get('content-type') || '');
   if (ct.includes('application/json')) {
@@ -197,7 +196,7 @@ async function compactSession(cfg, s, emit) {
   const brief = await chat(cfg, [
     { role: 'system', content: 'Compress the agent conversation below into a factual brief: goal, actions taken, current state, open items, important file paths. Max 120 words. No preamble.' },
     { role: 'user', content: convo },
-  ], { timeoutMs: 120000 });
+  ], {});
   const keep = s.messages.slice(-4);
   s.messages = [
     { role: 'user', content: 'CONTEXT BRIEF (compacted earlier):\n' + brief },
@@ -344,7 +343,7 @@ async function cliSetup(args) {
     }
     const t0 = Date.now();
     try {
-      const r = await chat({ baseUrl: url, apiKey: key, model, temperature: 0, timeoutMs: 90000 }, [{ role: 'user', content: 'Reply with exactly: OK' }], {});
+      const r = await chat({ baseUrl: url, apiKey: key, model, temperature: 0 }, [{ role: 'user', content: 'Reply with exactly: OK' }], {});
       console.log('ping ok in ' + (Date.now() - t0) + 'ms → ' + r.slice(0, 100));
     } catch (e) { console.warn('ping failed: ' + e.message + ' (continuing anyway)'); }
     saveConfig({ ...loadConfigSafe(), baseUrl: url, apiKey: key, model });
